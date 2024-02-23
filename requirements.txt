@@ -1,0 +1,1 @@
+pyrqlite @ git+https://github.com/rqlite/pyrqlite.git@b7f53d10fba39cdc779877f5fb85915ff2209db7
