@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS questions (
                 print(f"Client connected from {addr}")
 
                 with client_socket as c:
-                    correct_answers = 0
+                    answers: list[tuple[int, bool]] = []
 
                     with db.cursor() as cursor:
                         cursor.execute(
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS questions (
                             for prompt, options, answer in cursor.fetchall()
                         ]
 
-                    for q in questions:
+                    for i, q in enumerate(questions):
                         msg = b"\n" + q.prompt.encode() + b"\n\n"
                         for i, o in enumerate(q.options):
                             msg += f"- {i}: {o}\n".encode()
@@ -80,12 +80,17 @@ CREATE TABLE IF NOT EXISTS questions (
                                 c.send(msg)
                                 continue
 
-                            if a == q.answer:
-                                correct_answers += 1
+                            answers.append((i, a == q.answer))
                             break
 
-                    msg = f"{correct_answers} answers were correct. "
-                    if correct_answers == 0:
+                    msg = f"{len([ok for _, ok in answers if ok])} answers were correct.\n"
+                    for i, ((ans, ok), q) in enumerate(zip(answers, questions)):
+                        msg += f"Question {i}: {'correct' if ok else 'wrong'}\n"
+                        if not ok:
+                            msg += f"\tgiven: {q.options[ans]}\n"
+                        msg += f"\tanswer: {q.options[q.answer]}\n"
+
+                    if answers == 0:
                         msg += "How did you answer that wrong?\n"
                     else:
                         msg += "Bye!\n"
@@ -109,7 +114,7 @@ def get_questions() -> list[Question]:
     return [
         Question("What is the magic number?", ["69", "4294967296" "420", "0"], 1),
         Question(
-            "Qual é a capital da Itália?", ["Roma;", "Paris" "Lisboa", "Londres"], 0
+            "Qual é a capital da Itália?", ["Roma", "Paris" "Lisboa", "Londres"], 0
         ),
     ]
 
