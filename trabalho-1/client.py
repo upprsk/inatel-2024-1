@@ -26,6 +26,7 @@ def main() -> None:
             prompt = packet.decode(errors="ignore")
             print(prompt)
 
+            # Last packet
             if packet[-1] == 0xFF:
                 break
 
