@@ -28,7 +28,7 @@ docker run -p4001:4001 rqlite/rqlite
 Deve-se criar um `venv` para a biblioteca do banco de dados.
 
 ```bash
-python -m .venv venv
+python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
